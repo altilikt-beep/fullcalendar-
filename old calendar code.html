@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calendar with Google API</title>
+  <link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css" rel="stylesheet">
+  <style>
+    body {
+      background-color: #fff;
+      color: white;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 20px;
+    }
+    
+    #calendar {
+      width:100%;
+      max-width: 1000px;
+      overflow: hidden !important;
+      margin: 50px auto;
+      background-color: #222;
+      padding:20px;
+      border-radius: 10px;
+    }
+
+    .fc-event-title {
+  display: none !important;
+}
+
+
+    .time-section-header {
+      font-weight: bold;
+      color: white !important;
+      background-color: #4a7ab3 !important;
+      padding: 2px 5px;
+      border-radius: 3px;
+    }
+  
+      /* Active state for all buttons */
+      .fc-button.fc-button-active,
+    .fc-button.fc-button-active:hover {
+      background-color: #16a085 !important;
+      box-shadow: 0 0 8px rgba(22, 160, 133, 0.6) !important;
+    }
+
+    span.fc-timegrid-axis-cushion.fc-scrollgrid-shrink-cushion.fc-scrollgrid-sync-inner {
+      color: white;
+    }
+  
+    .fc-event {
+      cursor: default !important;
+      pointer-events: none !important;
+    }
+    
+    .fc-event a {
+      color: inherit !important;
+      text-decoration: none !important;
+    }
+    
+    .fc-scrollgrid {
+      overflow: visible !important;
+    }
+    
+    .fc-timegrid-body {
+      overflow: visible !important;
+      height: auto !important;
+    }
+  
+    .fc-toolbar-title {
+      color: white;
+      font-weight: 400;
+    }
+  
+    td.fc-timegrid-slot.fc-timegrid-slot-lane{
+      border-bottom: none !important;
+    }
+  
+    .fc-timegrid-slot {
+      height: 60px !important;
+    }
+  
+    .fc-button {
+      background-color: #3498db !important;
+      border: none !important;
+      color: white !important;
+      transition: background-color 0.3s;
+    }
+
+   
+  
+    .fc-button.fc-button-active,
+    .fc-button.fc-button-active:hover {
+      background-color: #4a7ab3 !important;
+    }
+  
+    
+  
+    /* Active state for view buttons */
+    button.fc-timeGridFiveDay-button.fc-button.fc-button-primary.fc-button-active{
+      background-color: #4a7ab3 !important;
+      margin-right: 5px;
+    }
+  
+    button.fc-timeGridWeekend-button.fc-button.fc-button-primary.fc-button-active{
+      background-color: #4a7ab3 !important;
+      margin-left: 5px;
+    }
+
+    button.fc-year2026-button.fc-button.fc-button-primary-active{
+      background-color: #4a7ab3 !important;
+    }
+  
+    .fc-v-event {
+  border: 0px !important;
+  display: block;
+}
+
+  
+    .fc .fc-timegrid-now-indicator-arrow {
+      display: none;
+      border:none;
+    }
+  
+    .fc .fc-timegrid-slots table {
+      border-collapse: collapse;
+    }
+    
+    .fc .fc-timegrid-slots td {
+      border: 1px solid #8080801f  !important;
+    }
+    
+    .fc .fc-timegrid-now-indicator-line {
+      display: none;
+      border: 1px solid white!important;
+    }
+  
+    .fc .fc-col-header-cell-cushion,
+    .fc .fc-timegrid-slot-label,
+    .fc .fc-event-title,
+    .fc .fc-daygrid-day-number,
+    .fc .fc-daygrid-day-top {
+      color: white !important;
+      margin-right: 5px;
+    }
+  
+    /* Updated button styles */
+    .fc-year2026-button, .fc-year2027-button {
+      margin-right: 5px !important;
+    }
+    
+    /* Year navigation container */
+    .fc-year-navigation {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+  
+    button.fc-weekdaysView-button.fc-button.fc-button-primary{
+      margin-right: 5px;
+    }
+  
+    button.fc-prev-button.fc-button.fc-button-primary{
+      margin-right: 5px;
+    }
+    
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+      .container {
+        padding: 10px;
+      }
+      
+      #calendar {
+        padding: 5px;
+        margin: 10px auto;
+      }
+      
+      .fc .fc-toolbar-title {
+        font-size: 1.2em !important;
+      }
+  
+      .fc-toolbar {
+        display: flex;
+        flex-wrap: wrap;
+      }
+      
+      .fc-toolbar-title {
+        font-size: 0.7em;
+        order: 1;
+        width: 100%;
+        text-align: center;
+        margin: 5px 0;
+      }
+  
+      .fc .fc-toolbar-title {
+        font-size: 1.35em !important;
+      }
+      
+      h2 .fc-toolbar-title{
+        font-size: 0.7em !important;
+      }
+  
+      .fc-toolbar-chunk {
+        order: 2;
+        margin: 3px !important;
+      }
+      
+      .fc-button {
+        font-size: 0.7em !important;
+        padding: 4px 6px !important;
+      }
+      
+      .fc-timegrid-slot {
+        height: 40px !important;
+      }
+    }
+  
+    @media (max-width: 480px) {
+      .fc-header-toolbar {
+        flex-direction: column;
+      }
+      
+      .fc .fc-toolbar-title {
+        font-size: 1.2em !important;
+        padding-top: 4px;
+        padding-bottom: 4px;
+      }
+  
+      a.fc-col-header-cell-cushion {
+        font-size: 12px !important;
+      }
+  
+      .fc-toolbar-chunk {
+        margin: 2px 0 !important;
+      }
+      
+      .fc-timegrid-slot {
+        height: 45px !important;
+      }
+      .time-slot-detail {
+    font-size: 13px;
+}
+      
+      .fc-timegrid-slot-label {
+        font-size: 0.8em;
+      }
+  
+      #calendar {
+        width:100%;
+       padding: 5px;
+        height: auto;
+        margin: 0px auto;
+        background-color: #222;
+     
+        border-radius: 10px;
+      }
+      
+      /* Stack year buttons on small screens */
+      .fc-year-navigation {
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+      /* Make FullCalendar fit mobile screens */
+      .fc {
+        max-width: 100% !important;
+        overflow-x: hidden !important;
+      }
+  
+  
+      /* Reduce padding for small screens */
+      @media (max-width: 768px) {
+        .fc .fc-toolbar {
+          flex-wrap: wrap;
+          font-size: 14px;
+        }
+        .fc .fc-timegrid-slot {
+          height: auto !important;
+        }
+      }
+    }
+    
+    .instructions {
+      background-color: #34495e;
+      padding: 15px;
+      border-radius: 8px;
+      margin-top: 20px;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+    
+    .instructions h3 {
+      margin-top: 0;
+      color: #3498db;
+    }
+    
+    .loading {
+      text-align: center;
+      padding: 20px;
+      color: #3498db;
+      font-style: italic;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="active-button-info">
+     
+    </div>
+    <div id="calendar"></div>
+    
+   
+    
+      <p class="loading"></p>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/locales-all.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fullcalendar/google-calendar@5.11.3/main.global.min.js"></script>
+  <script>
+       document.addEventListener('DOMContentLoaded', function() {
+      const calendarEl = document.getElementById('calendar');
+      const currentDate = new Date();
+      const currentYear = currentDate.getFullYear();
+      const navStatus = document.getElementById('navStatus');
+      
+      // Calculate next two years (2026 and 2027 initially)
+      const year1 = currentYear + (currentYear < 2025 ? 2 : 1);
+      const year2 = year1 + 1;
+
+      const calendar = new FullCalendar.Calendar(calendarEl, {
+        initialView: 'timeGridFiveDay',
+               height: '600px',         // fixed height
+  contentHeight: 'auto',
+        initialDate: getCurrentMonday(), // Start with current week's Monday
+        headerToolbar: {
+          left: `prev,year${year1},year${year2},next`,
+          center: 'title',
+          
+          right: 'timeGridFiveDay,timeGridWeekend'
+         
+        },
+        allDaySlot: false,
+        customButtons: {
+          timeGridFiveDay: {
+            text: '(M-F)',
+            click: function() {
+              // Get current Monday first
+              const monday = getMondayOfWeek(calendar.getDate());
+              // Change view and go to Monday of current week
+              calendar.changeView('timeGridFiveDay');
+              calendar.gotoDate(monday);
+              // Set active state
+              document.querySelector('.fc-timeGridFiveDay-button').classList.add('fc-button-active');
+              document.querySelector('.fc-timeGridWeekend-button').classList.remove('fc-button-active');
+            }
+          },
+          
+          timeGridWeekend: {
+            text: '(F-Su)',
+            click: function() {
+              const monday = getMondayOfWeek(calendar.getDate());
+              const friday = new Date(monday);
+              friday.setDate(monday.getDate() + 4);
+              
+              calendar.changeView('timeGridWeekend');
+              calendar.gotoDate(friday);
+              // Set active state
+              document.querySelector('.fc-timeGridWeekend-button').classList.add('fc-button-active');
+              document.querySelector('.fc-timeGridFiveDay-button').classList.remove('fc-button-active');
+            }
+          },
+          [`year${year1}`]: {
+            text: year1.toString(),
+            click: function() {
+              // Get the Monday of the first week of the year
+              const monday = getMondayOfWeek(new Date(year1, 0, 1));
+              calendar.gotoDate(monday);
+               // Set active state
+               setButtonActiveState(`year${year1}`);
+              updateNavStatus();
+            }
+          },
+          [`year${year2}`]: {
+            text: year2.toString(),
+            click: function() {
+              // Get the Monday of the first week of the year
+              const monday = getMondayOfWeek(new Date(year2, 0, 1));
+              calendar.gotoDate(monday);
+                // Set active state
+                setButtonActiveState(`year${year2}`);
+              updateNavStatus();
+            }
+          }
+        },
+        views: {
+          timeGridFiveDay: {
+            type: 'timeGrid',
+            duration: { days: 5 },
+            visibleRange: function(currentDate) {
+              const start = getMondayOfWeek(currentDate);
+              const end = new Date(start);
+              end.setDate(start.getDate() + 4);
+              return { 
+                start: start, 
+                end: end 
+              };
+            },
+            buttonText: '(M-F)'
+          },
+          timeGridWeekend: {
+            type: 'timeGrid',
+            duration: { days: 3 },
+            visibleRange: function(currentDate) {
+              const monday = getMondayOfWeek(currentDate);
+              const friday = new Date(monday);
+              friday.setDate(monday.getDate() + 4);
+              const sunday = new Date(friday);
+              sunday.setDate(friday.getDate() + 2);
+              
+              return { 
+                start: friday, 
+                end: sunday 
+              };
+            },
+            buttonText: '(F-Su)'
+          }
+        },
+        slotDuration: "01:00:00",
+        slotMinTime: "10:00:00",
+        slotMaxTime: "22:00:00",
+        nowIndicator: true,
+        slotLabelContent: function(arg) {
+          const hour = arg.date.getHours();
+          const minutes = arg.date.getMinutes();
+          
+          // Format time function
+          function formatTime(date) {
+            return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+          }
+          
+          // Morning section
+          if (hour === 10 && minutes === 0) {
+            const endTime = new Date(arg.date);
+            endTime.setHours(11, 0, 0);
+            return { 
+              html: `<div class="time-section-header">Morning</div>
+                     <div class="time-slot-detail">${formatTime(arg.date)} - ${formatTime(endTime)}</div>`
+            };
+          } else if (hour === 11 && minutes === 0) {
+            const endTime = new Date(arg.date);
+            endTime.setHours(12, 0, 0);
+            return { 
+              html: `<div class="time-slot-detail">${formatTime(arg.date)} - ${formatTime(endTime)}</div>`
+            };
+          }
+          
+          // Afternoon section
+          else if (hour === 12 && minutes === 0) {
+            const endTime = new Date(arg.date);
+            endTime.setHours(13, 0, 0);
+            return { 
+              html: `<div class="time-section-header">Afternoon</div>
+                     <div class="time-slot-detail">${formatTime(arg.date)} - ${formatTime(endTime)}</div>`
+            };
+          } else if (hour === 13 && minutes === 0) {
+            const endTime = new Date(arg.date);
+            endTime.setHours(14, 0, 0);
+            return { 
+              html: `<div class="time-slot-detail">${formatTime(arg.date)} - ${formatTime(endTime)}</div>`
+            };
+          } else if (hour === 14 && minutes === 0) {
+            const endTime = new Date(arg.date);
+            endTime.setHours(15, 0, 0);
+            return { 
+              html: `<div class="time-slot-detail">${formatTime(arg.date)} - ${formatTime(endTime)}</div>`
+            };
+          } else if (hour === 15 && minutes === 0) {
+            const endTime = new Date(arg.date);
+            endTime.setHours(16, 0, 0);
+            return { 
+              html: `<div class="time-slot-detail">${formatTime(arg.date)} - ${formatTime(endTime)}</div>`
+            };
+          } else if (hour === 16 && minutes === 0) {
+            const endTime = new Date(arg.date);
+            endTime.setHours(17, 0, 0);
+            return { 
+              html: `<div class="time-slot-detail">${formatTime(arg.date)} - ${formatTime(endTime)}</div>`
+            };
+          }
+          
+          // Evening section
+          else if (hour === 17 && minutes === 0) {
+            const endTime = new Date(arg.date);
+            endTime.setHours(18, 0, 0);
+            return { 
+              html: `<div class="time-section-header">Evening</div>
+                     <div class="time-slot-detail">${formatTime(arg.date)} - ${formatTime(endTime)}</div>`
+            };
+          } else if (hour === 18 && minutes === 0) {
+            const endTime = new Date(arg.date);
+            endTime.setHours(19, 0, 0);
+            return { 
+              html: `<div class="time-slot-detail">${formatTime(arg.date)} - ${formatTime(endTime)}</div>`
+            };
+          } else if (hour === 19 && minutes === 0) {
+            const endTime = new Date(arg.date);
+            endTime.setHours(20, 0, 0);
+            return { 
+              html: `<div class="time-slot-detail">${formatTime(arg.date)} - ${formatTime(endTime)}</div>`
+            };
+          } else if (hour === 20 && minutes === 0) {
+            const endTime = new Date(arg.date);
+            endTime.setHours(21, 0, 0);
+            return { 
+              html: `<div class="time-slot-detail">${formatTime(arg.date)} - ${formatTime(endTime)}</div>`
+            };
+          } else if (hour === 21 && minutes === 0) {
+            const endTime = new Date(arg.date);
+            endTime.setHours(22, 0, 0);
+            return { 
+              html: `<div class="time-slot-detail">${formatTime(arg.date)} - ${formatTime(endTime)}</div>`
+            };
+         
+          }
+          
+          return { html: '' };
+        },
+        datesSet: function(dateInfo) {
+  // Always refetch events when navigating (so colors stay updated)
+  calendar.refetchEvents();
+
+  // Ensure we're always on a Monday when using the timeGridFiveDay view
+  if (calendar.view.type === 'timeGridFiveDay') {
+    const currentDate = calendar.getDate();
+    const dayOfWeek = currentDate.getDay();
+    
+    if (dayOfWeek !== 1) {
+      const monday = getMondayOfWeek(currentDate);
+      calendar.gotoDate(monday);
+    }
+  }
+},
+        eventClick: function(info) {
+          info.jsEvent.preventDefault(); // Prevent browser from following event url
+        },
+        eventContent: function(arg) {
+  return {
+    html: `<div class="fc-event-time">${arg.timeText}</div><div class="custom-icon">⏰</div>`
+  };
+},
+
+        loading: function(isLoading) {
+          if (!isLoading) {
+            document.querySelector('.loading').style.display = 'none';
+          }
+        },
+        // Google Calendar API configuration
+        googleCalendarApiKey: 'AIzaSyAyFUoRF4S0_5wHTdOHnDTYUjSD_yzb05c',
+        eventSources: [
+      {
+        googleCalendarId: '5a11e6eeef96f9c961e246916aff67ae8a31aac3db9f85f758ddf2c60929617a@group.calendar.google.com'
+        // Do NOT set color or textColor here; it overrides Google's colors
+      }
+    ],
+    eventDidMount: function(info) {
+  // Apply Google event colors if available
+  const bgColor = info.event.backgroundColor || info.event.extendedProps.color;
+  const textColor = info.event.textColor;
+  
+  if (bgColor) {
+    info.el.style.backgroundColor = bgColor;
+    info.el.style.borderColor = bgColor;
+  }
+  if (textColor) {
+    info.el.style.color = textColor;
+  }
+}
+  });
+      
+
+      // Helper functions
+      function getMondayOfWeek(date) {
+        const d = new Date(date);
+        const day = d.getDay();
+        const diff = d.getDate() - day + (day === 0 ? -6 : 1); // adjust when Sunday
+        return new Date(d.setDate(diff));
+      }
+      
+      function getCurrentMonday() {
+        return getMondayOfWeek(new Date());
+      }
+
+            // Function to set active state for buttons
+            function setButtonActiveState(activeButton) {
+        // Remove active state from all buttons
+        document.querySelectorAll('.fc-button').forEach(button => {
+          button.classList.remove('fc-button-active');
+        });
+        
+        // Add active state to the clicked button
+        if (activeButton === 'timeGridFiveDay') {
+          document.querySelector('.fc-timeGridFiveDay-button').classList.add('fc-button-active');
+        } else if (activeButton === 'timeGridWeekend') {
+          document.querySelector('.fc-timeGridWeekend-button').classList.add('fc-button-active');
+        } else if (activeButton === `year${year1}`) {
+          document.querySelector(`.fc-year${year1}-button`).classList.add('fc-button-active');
+        } else if (activeButton === `year${year2}`) {
+          document.querySelector(`.fc-year${year2}-button`).classList.add('fc-button-active');
+        } else if (activeButton === 'prev') {
+          document.querySelector('.fc-prev-button').classList.add('fc-button-active');
+        } else if (activeButton === 'next') {
+          document.querySelector('.fc-next-button').classList.add('fc-button-active');
+        }
+      }
+
+      calendar.render();
+      
+       // Auto-refresh every 1 minute (60000ms)
+       setInterval(function() {
+        calendar.refetchEvents();
+      }, 60000);
+      // Set initial active state for weekdays button
+      document.querySelector('.fc-timeGridFiveDay-button').classList.add('fc-button-active');
+      
+      // Override prev/next button behavior to always go to Monday
+      const prevButton = document.querySelector('.fc-prev-button');
+      const nextButton = document.querySelector('.fc-next-button');
+      
+      // Store original functions
+      const originalPrevClick = prevButton.onclick;
+      const originalNextClick = nextButton.onclick;
+      
+      // New navigation function that always goes to Monday
+      function navigateToAdjacentMonday(isNext) {
+        const currentDate = calendar.getDate();
+        const adjustment = isNext ? 7 : -7;
+        const newDate = new Date(currentDate);
+        newDate.setDate(currentDate.getDate() + adjustment);
+        const monday = getMondayOfWeek(newDate);
+        calendar.gotoDate(monday);
+           // Set active state for navigation buttons
+           setButtonActiveState(isNext ? 'next' : 'prev');
+      }
+      
+      // Replace original handlers
+      
+      nextButton.onclick = function() {
+        navigateToAdjacentMonday(true);
+      };
+    });
+  </script>
+</body>
+</html>
